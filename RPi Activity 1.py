@@ -173,7 +173,6 @@ def createRooms(self):
     # add items to room 2
     r2.addItem("rug", "It is nice and Indian. It also needs to be vacuumed.")
     r2.addItem("fireplace", "It is full of ashes.")
-
     # add exits to room 3
     r3.addExit("north", r1)
     r3.addExit("east", r4)
