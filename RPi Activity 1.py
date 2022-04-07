@@ -252,7 +252,7 @@ class Game(Frame):
     def setRoomImage(self):
         if (Game.currentRoom == None):
         # if dead, set the skull image
-            Game.img = PhotoImage(file="skull.gif")
+            Game.img = PhotoImage(file="Death.gif")
         else:
             # otherwise grab the image for the current room
             Game.img = PhotoImage(file=Game.currentRoom.image)
@@ -269,7 +269,7 @@ class Game(Frame):
         Game.text.delete("1.0", END)
         if (Game.currentRoom == None):
             # if dead, let the player know
-            Game.text.insert(END, "You are dead. The only thing you can do now is quit.\n")
+            Game.text.insert(END, "Oh No!! You've gone through a bad door. The feds have discovered your trespassing and therefore you have been sentenced to death. sry.\n")
         else:
             # otherwise, display the appropriate status
             Game.text.insert(END, str(Game.currentRoom) + "\nYou are carrying: " + str(Game.inventory) + "\n\n" + status)
