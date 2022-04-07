@@ -133,9 +133,7 @@ class Game(Frame):
         self.setStatus("")
         # processes the player's input
 
-
-
-    # creates the rooms
+# Creates the rooms
     def createRooms(self):
         # r1 through r4 are the four rooms in the mansion
         # currentRoom is the room the player is currently in (which
