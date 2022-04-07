@@ -133,7 +133,7 @@ class Game(Frame):
         self.setStatus("")
         # processes the player's input
 
-# Creates the rooms
+    # Creates the rooms
     def createRooms(self):
         # r1 through r4 are the four rooms in the mansion
         # currentRoom is the room the player is currently in (which
@@ -141,11 +141,13 @@ class Game(Frame):
         # create the rooms and give them meaningful names and an
 
         # image in the current directory
-        r1 = Room("Room 1", "SittingRoom.gif")
-        r2 = Room("Room 2", "LivingRoom.gif")
-        r3 = Room("Room 3", "Study.gif")
-        r4 = Room("Room 4", "Brewery.gif")
-
+        r1 = Room("Sitting Room", "SittingRoom.gif")
+        r2 = Room("Living Room", "LivingRoom.gif")
+        r3 = Room("Study", "Study.gif")
+        r4 = Room("Brewery", "Brewery.gif")
+        r5 = Room("Attic", "Attic.gif")
+        r6 = Room("Basement", "Basement.gif")
+        
         # add exits to room 1
         r1.addExit("east", r2) # to the east of room 1 is room 2
         r1.addExit("south", r3)
@@ -161,25 +163,43 @@ class Game(Frame):
         # add items to room 2
         r2.addItem("rug", "It is nice and Indian. It also needs to be vacuumed.")
         r2.addItem("fireplace", "It is full of ashes.")
+        
         # add exits to room 3
         r3.addExit("north", r1)
         r3.addExit("east", r4)
+        r3.addExit("up", r5)
         # add grabbables to room 3
         r3.addGrabbable("book")
         # add items to room 3
         r3.addItem("bookshelves", "They are empty. Go figure.")
         r3.addItem("statue", "There is nothing special about it.")
         r3.addItem("desk", "The statue is resting on it. So is a book.")
+        r3.addItem("book", "The book mentions something about being doomed by an exit. That's strange")
 
         # add exits to room 4
         r4.addExit("north", r2)
         r4.addExit("west", r3)
+        r4.addExit("down", r6)
         r4.addExit("south", None) # DEATH!
         # add grabbables to room 4
         r4.addGrabbable("6-pack")
         # add items to room 4
         r4.addItem("brew_rig", "Gourd is brewing some sort of oatmeal stout on the brew rig. A 6-pack is resting beside it.")
 
+        #adds the exit to room 5
+        r5.addExit("down", r3)
+        #adds the item to room 5
+        r5.addItem("throne", "A large throne with a goblin on it.")
+            #adds the enemy to room 5
+###            r5.addEnemy("goblin", 2, 10, "fancy_key")
+
+        #adds exit to room 6
+        r6.addExit("up", r4)
+        #adds exit to room 6
+###        r6.addLockedItem("safe", "It is locked... Maybe a key can open it?", "key", "dagger")
+        # adds item to room 6
+        r6.addItem("chains", "Maybe this was a dungeon?")    
+        
         # set room 1 as the current room at the beginning of the
         # game
         Game.currentRoom = r1
