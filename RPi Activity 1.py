@@ -54,7 +54,8 @@ class Room:
         self._items = value
 
     @property
-    def grabbables(self):
+    def grabbables(self):
+
         return self._grabbables
 
     @grabbables.setter
@@ -102,12 +103,14 @@ class Room:
         s += "\n"
             
         # next, the exits from the room
-        s += "Exits: "
+        s += "Exits: "
+
 
         for exit in self.exits.keys():
             s += exit + " "
 
-        return s
+        return s
+
 
 
 # the game class
@@ -140,7 +143,8 @@ class Game(Frame):
         # set the current status
         self.setStatus("")
         # processes the player's input
-    def process(self, event):
+    def process(self, event):
+
         ...
 
 
@@ -152,10 +156,10 @@ def createRooms(self):
     # create the rooms and give them meaningful names and an
 
     # image in the current directory
-    r1 = Room("Room 1", "room1.gif")
-    r2 = Room("Room 2", "room2.gif")
-    r3 = Room("Room 3", "room3.gif")
-    r4 = Room("Room 4", "room4.gif")
+    r1 = Room("Room 1", "C:/Users/12259/Documents/2021-2022/Spring 22 Classes/CSC 132/Coding/rpi1/room1.gif")
+    r2 = Room("Room 2", "C:/Users/12259/Documents/2021-2022/Spring 22 Classes/CSC 132/Coding/rpi1/room2.gif")
+    r3 = Room("Room 3", "C:/Users/12259/Documents/2021-2022/Spring 22 Classes/CSC 132/Coding/rpi1/room3.gif")
+    r4 = Room("Room 4", "C:/Users/12259/Documents/2021-2022/Spring 22 Classes/CSC 132/Coding/rpi1/room4.gif")
 
     # add exits to room 1
     r1.addExit("east", r2) # to the east of room 1 is room 2
@@ -163,8 +167,7 @@ def createRooms(self):
     # add grabbables to room 1
     r1.addGrabbable("key")
     # add items to room 1
-    r1.addItem("chair", "It is made of wicker and no one is
-    sitting on it.")
+    r1.addItem("chair", "It is made of wicker and no one issitting on it.")
     r1.addItem("table", "It is made of oak. A golden key rests on it.")
 
     # add exits to room 2
@@ -197,14 +200,16 @@ def createRooms(self):
     Game.currentRoom = r1
 
     # initialize the player's inventory
-    Game.inventory = []
+    Game.inventory = []
+
 
 # sets up the GUI
 def setupGUI(self):
     # organize the GUI
     self.pack(fill=BOTH, expand=1)
     
-    # setup the player input at the bottom of the GUI
+    # setup the player input at the bottom of the GUI
+
     # the widget is a Tkinter Entry
     # set its background to white and bind the return key to the
     # function process in the class
@@ -234,7 +239,8 @@ def setupGUI(self):
     Game.text = Text(text_frame, bg="lightgrey", state=DISABLED)
     Game.text.pack(fill=Y, expand=1)
     text_frame.pack(side=RIGHT, fill=Y)
-    text_frame.pack_propagate(False)
+    text_frame.pack_propagate(False)
+
 
 
 # set the current room image
@@ -248,7 +254,8 @@ def setRoomImage(self):
         
     # display the image on the left of the GUI
     Game.image.config(image=Game.img)
-    Game.image.image = Game.img
+    Game.image.image = Game.img
+
 
 # sets the status displayed on the right of the GUI
 def setStatus(self, status):
@@ -261,7 +268,8 @@ def setStatus(self, status):
     else:
         # otherwise, display the appropriate status
         Game.text.insert(END, str(Game.currentRoom) + "\nYou are carrying: " + str(Game.inventory) + "\n\n" + status)
-    Game.text.config(state=DISABLED)
+    Game.text.config(state=DISABLED)
+
 
 
 # processes the player's input
@@ -345,7 +353,8 @@ def process(self, event):
         # clear the player's input
         self.setStatus(response)
         self.setRoomImage()
-        Game.player_input.delete(0, END)
+        Game.player_input.delete(0, END)
+
 
 
 ####################################################
