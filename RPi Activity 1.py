@@ -141,10 +141,10 @@ class Game(Frame):
         # create the rooms and give them meaningful names and an
 
         # image in the current directory
-        r1 = Room("Room 1", "room1.gif")
-        r2 = Room("Room 2", "room2.gif")
-        r3 = Room("Room 3", "room3.gif")
-        r4 = Room("Room 4", "room4.gif")
+        r1 = Room("Room 1", "SittingRoom.gif")
+        r2 = Room("Room 2", "LivingRoom.gif")
+        r3 = Room("Room 3", "Study.gif")
+        r4 = Room("Room 4", "Brewery.gif")
 
         # add exits to room 1
         r1.addExit("east", r2) # to the east of room 1 is room 2
