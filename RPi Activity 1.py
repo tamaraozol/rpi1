@@ -18,7 +18,9 @@ class Room:
         self.image = image
         self.exits = {}
         self.items = {}
-        self.grabbables = []    
+        self.grabbables = []
+        self.enemyNames = []
+        self.enemies = {}
 
     # getters and setters for the instance variables
     @property
@@ -62,6 +64,22 @@ class Room:
     def grabbables(self, value):
         self._grabbables = value
 
+    @property
+    def enemies(self):
+        return self._enemies
+
+    @enemies.setter
+    def enemies(self, value):
+        self._enemies = value
+
+    @property
+    def enemyNames(self):
+        return self._enemyNames
+    
+    @enemyNames.setter
+    def enemyNames(self, value):
+        self._enemyNames = value
+
     # adds an exit to the room
     # the exit is a string (e.g., north)
     # the room is an instance of a room
@@ -90,6 +108,13 @@ class Room:
     def delGrabbable(self, item):
         # remove the item from the list
         self._grabbables.remove(item)
+    
+    def addEnemy(self, enemy, desc, health, damage):
+        self._enemyNames.append(enemy)
+        self._enemies[enemy] = [desc, health, damage]
+    
+    def delEnemy(self, enemy):
+        self._enemyNames.remove(enemy)
 
     # returns a string description of the room
     def __str__(self):
@@ -105,9 +130,14 @@ class Room:
         # next, the exits from the room
         s += "Exits: "
 
-
         for exit in self.exits.keys():
             s += exit + " "
+        s += "\n"
+
+        s += "Enemies: "
+
+        for enemy in self.enemyNames:
+            s += enemy + " "
 
         return s
 
@@ -120,6 +150,7 @@ class Game(Frame):
     def __init__(self, parent):
         # call the constructor in the superclass
         Frame.__init__(self, parent)
+        self.playerHealth = 10
 
     # play the game
     def play(self):
@@ -191,7 +222,7 @@ class Game(Frame):
         #adds the item to room 5
         r5.addItem("throne", "A large throne with a goblin on it.")
             #adds the enemy to room 5
-###            r5.addEnemy("goblin", 2, 10, "fancy_key")
+        r5.addEnemy("goblin", "A Mean looking goblin who probably wants to kill you", 10, 2)
 
         #adds exit to room 6
         r6.addExit("up", r4)
@@ -275,6 +306,15 @@ class Game(Frame):
             Game.text.insert(END, str(Game.currentRoom) + "\nYou are carrying: " + str(Game.inventory) + "\n\n" + status)
         Game.text.config(state=DISABLED)
 
+    def combat(self, enemy):
+        visEnemyHealth = "#" * Game.currentRoom.enemies[enemy][1]
+        visMaxHealth = "_" * (10 - Game.currentRoom.enemies[enemy][1])
+        enemyHealth = f"[{visEnemyHealth + visMaxHealth}]"
+                        
+        if (Game.currentRoom.enemies[enemy][1] <= 0):
+            Game.currentRoom.delEnemy(enemy)
+        return(enemyHealth)
+
 
 
     # processes the player's input
@@ -352,6 +392,17 @@ class Game(Frame):
                         # no need to check any more grabbable
                         # items
                         break
+            elif (verb == "attack"):
+                response = "No enemy in this room"
+                for enemy in Game.currentRoom.enemyNames:
+                    if (noun == enemy):
+                        Game.currentRoom.enemies[enemy][1] += -2
+                        enemyHealth = Game.combat(self, enemy)
+                        if (Game.currentRoom.enemies[enemy][1] > 0):
+                            response = f"Enemy Health is {enemyHealth}"
+                        else:
+                            response = "The enemy has been defeated"
+
 
             # display the response on the right of the GUI
             # display the room's image on the left of the GUI
