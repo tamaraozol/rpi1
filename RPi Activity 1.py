@@ -307,7 +307,7 @@ class Game(Frame):
         Game.text.config(state=DISABLED)
 
     def combat(self, enemy):
-        visEnemyHealth = "0" * Game.currentRoom.enemies[enemy][1]
+        visEnemyHealth = "@" * Game.currentRoom.enemies[enemy][1]
         visMaxHealth = "_" * (10 - Game.currentRoom.enemies[enemy][1])
         enemyHealth = f"[{visEnemyHealth + visMaxHealth}]"
                         
@@ -372,6 +372,8 @@ class Game(Frame):
                     # if one is found, set the response to the
                     # item's description
                     response = Game.currentRoom.items[noun]
+                elif(noun in Game.currentRoom.enemyNames):
+                    response = f"Enemy Health: {Game.combat(self, noun)} \n{Game.currentRoom.enemies[noun][0]}"
             # the verb is: take
             elif (verb == "take"):
                 # set a default response
