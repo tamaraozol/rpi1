@@ -289,6 +289,8 @@ class Game(Frame):
         if (Game.currentRoom == None):
         # if dead, set the skull image
             Game.img = PhotoImage(file="Death.gif")
+        elif (Game.playerHealth <= 0):
+            Game.img = PhotoImage(file="skull.gif")
         else:
             # otherwise grab the image for the current room
             Game.img = PhotoImage(file=Game.currentRoom.image)
@@ -303,9 +305,11 @@ class Game(Frame):
         # enable the text widget, clear it, set it, and disabled it
         Game.text.config(state=NORMAL)
         Game.text.delete("1.0", END)
-        if (Game.currentRoom == None or Game.playerHealth <= 0):
+        if (Game.currentRoom == None):
             # if dead, let the player know
             Game.text.insert(END, "Oh No!! You've gone through a bad door. The feds have discovered your trespassing and therefore you have been sentenced to death. sry.\n")
+        elif(Game.playerHealth <= 0):
+            Game.text.insert(END, "lolDead\n")
         else:
             # otherwise, display the appropriate status
             Game.text.insert(END, str(Game.currentRoom) + "\nYou are carrying: " + str(Game.inventory) + "\n\n" + status)
