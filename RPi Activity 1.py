@@ -120,7 +120,8 @@ class Room:
     def __str__(self):
         # first, the room name
         s = "You are in {}.\n".format(self.name)
-        
+        # player Health Readout
+        s += f"Player Health: {Game.healthReadout(Game)}\n"
         # next, the items in the room
         s += "You see: "
         for item in self.items.keys():
@@ -138,6 +139,8 @@ class Room:
 
         for enemy in self.enemyNames:
             s += enemy + " "
+        s += "\n"
+
 
         return s
 
@@ -146,11 +149,13 @@ class Room:
 # the game class
 # inherits from the Frame class of Tkinter
 class Game(Frame):
+    playerHealth = 10
+    maxHealth = 10
+    playerDamage = 1
     # the constructor
     def __init__(self, parent):
         # call the constructor in the superclass
         Frame.__init__(self, parent)
-        self.playerHealth = 10
 
     # play the game
     def play(self):
@@ -298,7 +303,7 @@ class Game(Frame):
         # enable the text widget, clear it, set it, and disabled it
         Game.text.config(state=NORMAL)
         Game.text.delete("1.0", END)
-        if (Game.currentRoom == None):
+        if (Game.currentRoom == None or Game.playerHealth <= 0):
             # if dead, let the player know
             Game.text.insert(END, "Oh No!! You've gone through a bad door. The feds have discovered your trespassing and therefore you have been sentenced to death. sry.\n")
         else:
@@ -307,15 +312,26 @@ class Game(Frame):
         Game.text.config(state=DISABLED)
 
     def combat(self, enemy):
-        visEnemyHealth = "@" * Game.currentRoom.enemies[enemy][1]
-        visMaxHealth = "_" * (10 - Game.currentRoom.enemies[enemy][1])
-        enemyHealth = f"[{visEnemyHealth + visMaxHealth}]"
+
+        Game.playerHealth += -(Game.currentRoom.enemies[enemy][2])
+        if("dagger" in Game.inventory):
+            Game.playerDamage = 4
+        Game.currentRoom.enemies[enemy][1] += -(Game.playerDamage)
                         
         if (Game.currentRoom.enemies[enemy][1] <= 0):
             Game.currentRoom.delEnemy(enemy)
-        return(enemyHealth)
 
+    def enemyHealthReadout(self, enemy):
+        visEnemyHealth = "@" * Game.currentRoom.enemies[enemy][1]
+        visMaxHealth = "_" * (10 - Game.currentRoom.enemies[enemy][1])
+        enemyHealth = f"[{visEnemyHealth + visMaxHealth}]"
+        return enemyHealth
 
+    def healthReadout(self):
+        visPlayerHealth = "#" * Game.playerHealth
+        visMaxHealth = "_" * (Game.maxHealth - Game.playerHealth)
+        playerHealth = f"[{visPlayerHealth + visMaxHealth}]"
+        return(playerHealth)
 
     # processes the player's input
     def process(self, event):
@@ -373,7 +389,7 @@ class Game(Frame):
                     # item's description
                     response = Game.currentRoom.items[noun]
                 elif(noun in Game.currentRoom.enemyNames):
-                    response = f"Enemy Health: {Game.combat(self, noun)} \n{Game.currentRoom.enemies[noun][0]}"
+                    response = f"Enemy Health: {Game.enemyHealthReadout(self, noun)} \n{Game.currentRoom.enemies[noun][0]}"
             # the verb is: take
             elif (verb == "take"):
                 # set a default response
@@ -398,8 +414,8 @@ class Game(Frame):
                 response = "No enemy in this room"
                 for enemy in Game.currentRoom.enemyNames:
                     if (noun == enemy):
-                        Game.currentRoom.enemies[enemy][1] += -2
-                        enemyHealth = Game.combat(self, enemy)
+                        Game.combat(self, enemy)
+                        enemyHealth = Game.enemyHealthReadout(self, enemy)
                         if (Game.currentRoom.enemies[enemy][1] > 0):
                             response = f"Enemy Health: {enemyHealth}"
                         else:
