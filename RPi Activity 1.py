@@ -307,7 +307,7 @@ class Game(Frame):
         Game.text.config(state=DISABLED)
 
     def combat(self, enemy):
-        visEnemyHealth = "#" * Game.currentRoom.enemies[enemy][1]
+        visEnemyHealth = "0" * Game.currentRoom.enemies[enemy][1]
         visMaxHealth = "_" * (10 - Game.currentRoom.enemies[enemy][1])
         enemyHealth = f"[{visEnemyHealth + visMaxHealth}]"
                         
@@ -399,7 +399,7 @@ class Game(Frame):
                         Game.currentRoom.enemies[enemy][1] += -2
                         enemyHealth = Game.combat(self, enemy)
                         if (Game.currentRoom.enemies[enemy][1] > 0):
-                            response = f"Enemy Health is {enemyHealth}"
+                            response = f"Enemy Health: {enemyHealth}"
                         else:
                             response = "The enemy has been defeated"
 
