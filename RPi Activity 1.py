@@ -21,6 +21,7 @@ class Room:
         self.grabbables = []
         self.enemyNames = []
         self.enemies = {}
+        self.lockedItems = {}
 
     # getters and setters for the instance variables
     @property
@@ -80,6 +81,13 @@ class Room:
     def enemyNames(self, value):
         self._enemyNames = value
 
+    @property
+    def lockedItems(self):
+        return self._lockedItems
+    
+    @lockedItems.setter
+    def lockedItems(self, value):
+        self._lockedItems = value
     # adds an exit to the room
     # the exit is a string (e.g., north)
     # the room is an instance of a room
@@ -101,7 +109,8 @@ class Room:
     # the item is a string (e.g., key)
     def addGrabbable(self, item):
         # append the item to the list
-        self._grabbables.append(item)
+        if (item != None):
+            self._grabbables.append(item)
 
     # removes a grabbable item from the room
     # the item is a string (e.g., key)
@@ -109,12 +118,15 @@ class Room:
         # remove the item from the list
         self._grabbables.remove(item)
     
-    def addEnemy(self, enemy, desc, health, damage):
+    def addEnemy(self, enemy, desc, health, damage, dropItem):
         self._enemyNames.append(enemy)
-        self._enemies[enemy] = [desc, health, damage]
+        self._enemies[enemy] = [desc, health, damage, dropItem]
     
     def delEnemy(self, enemy):
         self._enemyNames.remove(enemy)
+
+    def addLockedItem(self, item, desc, key, dropItem):
+        self._lockedItems[item] = [desc, key, dropItem]
 
     # returns a string description of the room
     def __str__(self):
@@ -125,6 +137,9 @@ class Room:
         # next, the items in the room
         s += "You see: "
         for item in self.items.keys():
+            s += item + " "
+        
+        for item in self.lockedItems.keys():
             s += item + " "
         s += "\n"
             
@@ -227,14 +242,14 @@ class Game(Frame):
         #adds the item to room 5
         r5.addItem("throne", "A large throne with a goblin on it.")
             #adds the enemy to room 5
-        r5.addEnemy("goblin", "A Mean looking goblin who probably wants to kill you", 10, 2)
+        r5.addEnemy("goblin", "A Mean looking goblin who probably wants to kill you", 10, 2, "fancy_key")
 
         #adds exit to room 6
         r6.addExit("up", r4)
         #adds exit to room 6
-###        r6.addLockedItem("safe", "It is locked... Maybe a key can open it?", "key", "dagger")
+        r6.addLockedItem("safe", "It is locked... Maybe a key can open it?", "key", "dagger")
         # adds item to room 6
-        r6.addItem("chains", "Maybe this was a dungeon?")    
+        r6.addItem("chains", "Maybe this was a dungeon?")
         
         # set room 1 as the current room at the beginning of the
         # game
@@ -323,6 +338,8 @@ class Game(Frame):
         Game.currentRoom.enemies[enemy][1] += -(Game.playerDamage)
                         
         if (Game.currentRoom.enemies[enemy][1] <= 0):
+            if(Game.currentRoom.enemies[enemy][3] != None):
+                Game.currentRoom.addGrabbable(Game.currentRoom.enemies[enemy][3])
             Game.currentRoom.delEnemy(enemy)
 
     def enemyHealthReadout(self, enemy):
@@ -394,6 +411,11 @@ class Game(Frame):
                     response = Game.currentRoom.items[noun]
                 elif(noun in Game.currentRoom.enemyNames):
                     response = f"Enemy Health: {Game.enemyHealthReadout(self, noun)} \n{Game.currentRoom.enemies[noun][0]}"
+                elif(noun in Game.currentRoom.lockedItems):
+                    if (Game.currentRoom.lockedItems[noun][2] == None):
+                        response = f"The {noun} has been opened already."
+                    else:
+                        response = Game.currentRoom.lockedItems[noun][0]
             # the verb is: take
             elif (verb == "take"):
                 # set a default response
@@ -423,7 +445,17 @@ class Game(Frame):
                         if (Game.currentRoom.enemies[enemy][1] > 0):
                             response = f"Enemy Health: {enemyHealth}"
                         else:
-                            response = "The enemy has been defeated"
+                            response = f"The {enemy} has been defeated! It dropped a {Game.currentRoom.enemies[enemy][3]}"
+            elif (verb == "use"):
+                response = "Item not in inventory"
+                for item in Game.inventory:
+                    if (noun == item):
+                        response = "That item cannot be used here"
+                        for item in Game.currentRoom.lockedItems:
+                            if (noun == Game.currentRoom.lockedItems[item][1] and Game.currentRoom.lockedItems[item][2] != None):
+                                response = f"The item has been used. A {Game.currentRoom.lockedItems[item][2]} has been dropped"
+                                Game.currentRoom.addGrabbable(Game.currentRoom.lockedItems[item][2])
+                                Game.currentRoom.lockedItems[item][2] = None
 
 
             # display the response on the right of the GUI
