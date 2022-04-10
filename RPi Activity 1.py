@@ -22,6 +22,8 @@ class Room:
         self.enemyNames = []
         self.enemies = {}
         self.lockedItems = {}
+        self.lockedExits = {}
+        self.lockedExitNames = []
 
     # getters and setters for the instance variables
     @property
@@ -88,6 +90,22 @@ class Room:
     @lockedItems.setter
     def lockedItems(self, value):
         self._lockedItems = value
+
+    @property
+    def lockedExits(self):
+        return self._lockedExits
+    
+    @lockedExits.setter
+    def lockedExits(self, value):
+        self._lockedExits = value
+
+    @property
+    def lockedExitNames(self):
+        return self._lockedExitNames
+    
+    @lockedExitNames.setter
+    def lockedExitNames(self, value):
+        self._lockedExitNames = value
     # adds an exit to the room
     # the exit is a string (e.g., north)
     # the room is an instance of a room
@@ -128,6 +146,12 @@ class Room:
     def addLockedItem(self, item, desc, key, dropItem):
         self._lockedItems[item] = [desc, key, dropItem]
 
+    def addLockedExit(self, exit, room, desc, key):
+        self._lockedExitNames.append(exit)
+        self._lockedExits[exit] = [room, desc, key]
+    
+    def delLockedExit(self, exit):
+        self._lockedExitNames.remove(exit)
     # returns a string description of the room
     def __str__(self):
         # first, the room name
@@ -147,6 +171,9 @@ class Room:
         s += "Exits: "
 
         for exit in self.exits.keys():
+            s += exit + " "
+        
+        for exit in self.lockedExitNames:
             s += exit + " "
         s += "\n"
 
@@ -202,6 +229,7 @@ class Game(Frame):
         # add exits to room 1
         r1.addExit("east", r2) # to the east of room 1 is room 2
         r1.addExit("south", r3)
+        r1.addLockedExit("north", True, "Oh look a locked room. The lock looks fAnCy.", "fancy_key")
         # add grabbables to room 1
         r1.addGrabbable("key")
         # add items to room 1
@@ -306,6 +334,8 @@ class Game(Frame):
             Game.img = PhotoImage(file="Death.gif")
         elif (Game.playerHealth <= 0):
             Game.img = PhotoImage(file="skull.gif")
+        elif (Game.currentRoom == True):
+            Game.img = PhotoImage(file="room1.gif")
         else:
             # otherwise grab the image for the current room
             Game.img = PhotoImage(file=Game.currentRoom.image)
@@ -325,6 +355,8 @@ class Game(Frame):
             Game.text.insert(END, "Oh No!! You've gone through a bad door. The feds have discovered your trespassing and therefore you have been sentenced to death. sry.\n")
         elif(Game.playerHealth <= 0):
             Game.text.insert(END, "lolDead\n")
+        elif(Game.currentRoom == True):
+            Game.text.insert(END, "You did it. You broke into a house and stabbed the owner to death brutally. Do you feel good about yourself? I wouldn't. But I'm not you. Mayber you're different. Either way, have a good time with your guilt.")
         else:
             # otherwise, display the appropriate status
             Game.text.insert(END, str(Game.currentRoom) + "\nYou are carrying: " + str(Game.inventory) + "\n\n" + status)
@@ -396,9 +428,10 @@ class Game(Frame):
                     # the one that is associated with the
                     # specified exit
                     Game.currentRoom = Game.currentRoom.exits[noun]
-
                     # set the response (success)
                     response = "Room changed."
+                elif(noun in Game.currentRoom.lockedExits):
+                    response = Game.currentRoom.lockedExits[noun][1]
             # the verb is: look
             elif (verb == "look"):
                 # set a default response
@@ -456,6 +489,12 @@ class Game(Frame):
                                 response = f"The item has been used. A {Game.currentRoom.lockedItems[item][2]} has been dropped"
                                 Game.currentRoom.addGrabbable(Game.currentRoom.lockedItems[item][2])
                                 Game.currentRoom.lockedItems[item][2] = None
+                        for exit in Game.currentRoom.lockedExitNames:
+                            if (noun == Game.currentRoom.lockedExits[exit][2] and Game.currentRoom.lockedExits[exit][2] != None):
+                                response = f"The item has been used. The {exit} exit has been unlocked!"
+                                Game.currentRoom.addExit(exit, Game.currentRoom.lockedExits[exit][0])
+                                Game.currentRoom.delLockedExit(exit)
+                                Game.currentRoom.lockedExits[exit][2] = None
 
 
             # display the response on the right of the GUI
