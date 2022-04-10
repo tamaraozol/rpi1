@@ -270,7 +270,7 @@ class Game(Frame):
         #adds the item to room 5
         r5.addItem("throne", "A large throne with a goblin on it.")
             #adds the enemy to room 5
-        r5.addEnemy("goblin", "A Mean looking goblin who probably wants to kill you", 10, 2, "fancy_key")
+        r5.addEnemy("goblin", "A mean looking goblin who probably wants to kill you", 10, 2, "fancy_key")
 
         #adds exit to room 6
         r6.addExit("up", r4)
@@ -333,9 +333,9 @@ class Game(Frame):
         # if dead, set the skull image
             Game.img = PhotoImage(file="Death.gif")
         elif (Game.playerHealth <= 0):
-            Game.img = PhotoImage(file="skull.gif")
+            Game.img = PhotoImage(file="DeathByGob.gif")
         elif (Game.currentRoom == True):
-            Game.img = PhotoImage(file="room1.gif")
+            Game.img = PhotoImage(file="Outside.gif")
         else:
             # otherwise grab the image for the current room
             Game.img = PhotoImage(file=Game.currentRoom.image)
@@ -354,9 +354,9 @@ class Game(Frame):
             # if dead, let the player know
             Game.text.insert(END, "Oh No!! You've gone through a bad door. The feds have discovered your trespassing and therefore you have been sentenced to death. sry.\n")
         elif(Game.playerHealth <= 0):
-            Game.text.insert(END, "lolDead\n")
+            Game.text.insert(END, "You have been killed by the goblin. Maybe you should find something to make you stronger?\n")
         elif(Game.currentRoom == True):
-            Game.text.insert(END, "You did it. You broke into a house and stabbed the owner to death brutally. Do you feel good about yourself? I wouldn't. But I'm not you. Mayber you're different. Either way, have a good time with your guilt.")
+            Game.text.insert(END, "WOW!! Congrats! You made it out alive! That was super scary. Well, now what? Anyways. Have a good time finding your way home.\n")
         else:
             # otherwise, display the appropriate status
             Game.text.insert(END, str(Game.currentRoom) + "\nYou are carrying: " + str(Game.inventory) + "\n\n" + status)
