@@ -14,6 +14,13 @@ class Room:
         # (e.g., to the south is room n), items (e.g., table),
         # item descriptions (for each item), and grabbables
         # (things that can be taken into inventory)
+        # enemies have a desc, health, damage, and a drop item
+        # the enemy name is used to iterate over the list of enemies
+        # with the functionality of the list
+        # (the same is true with locked exits/ locked exit names)
+        # locked items and locked exits both have descriptions
+        # and key items to open them. Exits have the room they lead to
+        # items have the grabbable they drop
         self.name = name
         self.image = image
         self.exits = {}
@@ -136,20 +143,35 @@ class Room:
         # remove the item from the list
         self._grabbables.remove(item)
     
+    # adds an enemy to a specific room
+    # the enemy name is added to the dict and the list
+    # this functions as the key for the dictionary location
+    # the desc and drop item, both str are added to dict
+    # health and damage, both ints, are added to dict
     def addEnemy(self, enemy, desc, health, damage, dropItem):
         self._enemyNames.append(enemy)
         self._enemies[enemy] = [desc, health, damage, dropItem]
     
+    # an enemy name is deleted from the list of enemies
     def delEnemy(self, enemy):
         self._enemyNames.remove(enemy)
 
+    # a locked item is added to a room
+    # everthing used for the dictionary is meant to be a string
+    # item is the dictionary key
     def addLockedItem(self, item, desc, key, dropItem):
         self._lockedItems[item] = [desc, key, dropItem]
 
+    # a locked exit is added to a room
+    # exit is both the name and the key for the dict
+    # it is added to both the list of names and dict
+    # everything else is a str added to the dict
     def addLockedExit(self, exit, room, desc, key):
         self._lockedExitNames.append(exit)
         self._lockedExits[exit] = [room, desc, key]
     
+    # a locked exit is removed
+    # the name is removed from the list of exit names
     def delLockedExit(self, exit):
         self._lockedExitNames.remove(exit)
     # returns a string description of the room
@@ -163,6 +185,7 @@ class Room:
         for item in self.items.keys():
             s += item + " "
         
+        # locked items also need to be displayed
         for item in self.lockedItems.keys():
             s += item + " "
         s += "\n"
@@ -173,10 +196,12 @@ class Room:
         for exit in self.exits.keys():
             s += exit + " "
         
+        # and the locked exits
         for exit in self.lockedExitNames:
             s += exit + " "
         s += "\n"
 
+        # next we need to display any enemies in the room
         s += "Enemies: "
 
         for enemy in self.enemyNames:
@@ -191,6 +216,9 @@ class Room:
 # the game class
 # inherits from the Frame class of Tkinter
 class Game(Frame):
+    # Class variables are used for the player health, max player health, and damage for the player
+    # these are all able to be changed, but generally, max health should be equal to 
+    # player health at initialization
     playerHealth = 10
     maxHealth = 10
     playerDamage = 1
@@ -229,6 +257,7 @@ class Game(Frame):
         # add exits to room 1
         r1.addExit("east", r2) # to the east of room 1 is room 2
         r1.addExit("south", r3)
+        # adds a locked exit to room 1
         r1.addLockedExit("north", True, "Oh look a locked room. The lock looks fAnCy.", "fancy_key")
         # add grabbables to room 1
         r1.addGrabbable("key")
@@ -274,7 +303,7 @@ class Game(Frame):
 
         #adds exit to room 6
         r6.addExit("up", r4)
-        #adds exit to room 6
+        #adds locked item to room 6
         r6.addLockedItem("safe", "It is locked... Maybe a key can open it?", "key", "dagger")
         # adds item to room 6
         r6.addItem("chains", "Maybe this was a dungeon?")
@@ -333,8 +362,10 @@ class Game(Frame):
         # if dead, set the skull image
             Game.img = PhotoImage(file="Death.gif")
         elif (Game.playerHealth <= 0):
+        # if killed by goblin, use death by gob image
             Game.img = PhotoImage(file="DeathByGob.gif")
         elif (Game.currentRoom == True):
+        # if win use winning image
             Game.img = PhotoImage(file="Outside.gif")
         else:
             # otherwise grab the image for the current room
@@ -354,32 +385,43 @@ class Game(Frame):
             # if dead, let the player know
             Game.text.insert(END, "Oh No!! You've gone through a bad door. The feds have discovered your trespassing and therefore you have been sentenced to death. sry.\n")
         elif(Game.playerHealth <= 0):
+            # if you have been killed by the goblin, let the player know and give a hint
             Game.text.insert(END, "You have been killed by the goblin. Maybe you should find something to make you stronger?\n")
         elif(Game.currentRoom == True):
+            # let the player know they've won and congratulate them
             Game.text.insert(END, "WOW!! Congrats! You made it out alive! That was super scary. Well, now what? Anyways. Have a good time finding your way home.\n")
         else:
             # otherwise, display the appropriate status
             Game.text.insert(END, str(Game.currentRoom) + "\nYou are carrying: " + str(Game.inventory) + "\n\n" + status)
         Game.text.config(state=DISABLED)
 
+    # combat is called to work out the enemy damage 
+    # and player damage done to the player and enemy
+    # respectively
+    # it takes in the enemy that is being fought
     def combat(self, enemy):
-
+        # calculates the damage towards the player
         Game.playerHealth += -(Game.currentRoom.enemies[enemy][2])
+        
+        # calculates the damage done by the player
         if("dagger" in Game.inventory):
             Game.playerDamage = 4
         Game.currentRoom.enemies[enemy][1] += -(Game.playerDamage)
-                        
+        
+        # if the enemy is dead, the enemy needs to drop it's item
         if (Game.currentRoom.enemies[enemy][1] <= 0):
             if(Game.currentRoom.enemies[enemy][3] != None):
                 Game.currentRoom.addGrabbable(Game.currentRoom.enemies[enemy][3])
             Game.currentRoom.delEnemy(enemy)
 
+    # enemy health is displayed in a visual bar like representation
     def enemyHealthReadout(self, enemy):
         visEnemyHealth = "@" * Game.currentRoom.enemies[enemy][1]
         visMaxHealth = "_" * (10 - Game.currentRoom.enemies[enemy][1])
         enemyHealth = f"[{visEnemyHealth + visMaxHealth}]"
         return enemyHealth
 
+    # player health is displayed in a slightly different bar representation
     def healthReadout(self):
         visPlayerHealth = "#" * Game.playerHealth
         visMaxHealth = "_" * (Game.maxHealth - Game.playerHealth)
@@ -395,7 +437,7 @@ class Game(Frame):
         # compare the verb and noun to known values
         action = action.lower()
         # set a default response
-        response = "I don't understand. Try verb noun. Valid verbs are go, look, and take"
+        response = "I don't understand. Try verb noun. Valid verbs are go, look, take, attack, and use"
 
         # exit the game if the player wants to leave (supports quit,
         # exit, and bye)
@@ -430,6 +472,8 @@ class Game(Frame):
                     Game.currentRoom = Game.currentRoom.exits[noun]
                     # set the response (success)
                     response = "Room changed."
+                # if a player tries to go through a locked exit
+                # the player needs to be let know that it is locked
                 elif(noun in Game.currentRoom.lockedExits):
                     response = Game.currentRoom.lockedExits[noun][1]
             # the verb is: look
@@ -442,8 +486,13 @@ class Game(Frame):
                     # if one is found, set the response to the
                     # item's description
                     response = Game.currentRoom.items[noun]
+                # if there is no item matching the input, then it checks enemies
+                # the enemy health and desc is returned
                 elif(noun in Game.currentRoom.enemyNames):
                     response = f"Enemy Health: {Game.enemyHealthReadout(self, noun)} \n{Game.currentRoom.enemies[noun][0]}"
+                # if there are no enemies or items, then it checks locked items
+                # the description is given if not opened
+                # otherwise explains that locked item has been opened
                 elif(noun in Game.currentRoom.lockedItems):
                     if (Game.currentRoom.lockedItems[noun][2] == None):
                         response = f"The {noun} has been opened already."
@@ -469,9 +518,16 @@ class Game(Frame):
                         # no need to check any more grabbable
                         # items
                         break
+            # the verb attack is used to initiate combat with an enemy
             elif (verb == "attack"):
+                # default response
                 response = "No enemy in this room"
                 for enemy in Game.currentRoom.enemyNames:
+                    # if there is an enemy in the room that attacked by player
+                    # then combat is called which deducts health from player and enemy
+                    # and if the enemy is alive then health is shown
+                    # otherwise the defeat message is returned
+                    # the dropped item is also revealed
                     if (noun == enemy):
                         Game.combat(self, enemy)
                         enemyHealth = Game.enemyHealthReadout(self, enemy)
@@ -479,17 +535,28 @@ class Game(Frame):
                             response = f"Enemy Health: {enemyHealth}"
                         else:
                             response = f"The {enemy} has been defeated! It dropped a {Game.currentRoom.enemies[enemy][3]}"
+            # the verb use is for using items in the player's inventory
             elif (verb == "use"):
+                # default response
                 response = "Item not in inventory"
                 for item in Game.inventory:
+                    # checks to see if the item is in the player's inventory
                     if (noun == item):
+                        # default response
                         response = "That item cannot be used here"
                         for item in Game.currentRoom.lockedItems:
+                            # checks to see if there is a locked item that needs that use item
+                            # if there is, then the locked item is opened and then the drop item 
+                            # is removed from the locked item
                             if (noun == Game.currentRoom.lockedItems[item][1] and Game.currentRoom.lockedItems[item][2] != None):
                                 response = f"The item has been used. A {Game.currentRoom.lockedItems[item][2]} has been dropped"
                                 Game.currentRoom.addGrabbable(Game.currentRoom.lockedItems[item][2])
                                 Game.currentRoom.lockedItems[item][2] = None
+                        
                         for exit in Game.currentRoom.lockedExitNames:
+                            # if there were no locked items using that item, then locked exits are checked
+                            # if there is, and the exit has not already been unlocked, then the new exit is added to the room
+                            # and the key is removed from being needed to open the door
                             if (noun == Game.currentRoom.lockedExits[exit][2] and Game.currentRoom.lockedExits[exit][2] != None):
                                 response = f"The item has been used. The {exit} exit has been unlocked!"
                                 Game.currentRoom.addExit(exit, Game.currentRoom.lockedExits[exit][0])
